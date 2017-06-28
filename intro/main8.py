@@ -37,4 +37,11 @@ button2.pack(side=tk.LEFT, padx=2, pady=2)
 
 tb.pack(side=tk.TOP, fill=tk.X)
 
+# **** Status Bar ****
+
+status = tk.Label(root, text='Preparing to do nothing...', bd=1, relief=tk.SUNKEN, anchor=tk.W)
+status.pack(side=tk.BOTTOM, fill=tk.X)
+
+
+
 root.mainloop()
