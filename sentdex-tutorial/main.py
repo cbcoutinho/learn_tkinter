@@ -11,6 +11,7 @@ class SeaofBTCapp(tk.Tk):
 
         tk.Tk.__init__(self, *args, **kwargs)
         self.title("The title")
+        
         container = tk.Frame(self)
 
         container.pack(side='top',
@@ -31,7 +32,7 @@ class SeaofBTCapp(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, PageOne):
+        for F in (StartPage, PageOne, PageTwo):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky='nsew')
@@ -56,9 +57,14 @@ class StartPage(tk.Frame):
         label.pack(pady=10,padx=10)
 
         button1 = tk.Button(self,
-                            text='Visit Page 1',
+                            text='Visit Page One',
                             command=lambda: controller.show_frame(PageOne))
         button1.pack()
+
+        button2 = tk.Button(self,
+                            text='Visit Page Two',
+                            command=lambda: controller.show_frame(PageTwo))
+        button2.pack()
 
         status = tk.Label(self,
                           text='On Start Page...',
@@ -81,8 +87,40 @@ class PageOne(tk.Frame):
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
+        button2 = tk.Button(self,
+                            text='Visit Page Two',
+                            command=lambda: controller.show_frame(PageTwo))
+        button2.pack()
+
         status = tk.Label(self,
                           text='On Page One...',
+                          bd=1,
+                          relief=tk.SUNKEN,
+                          anchor=tk.W)
+        status.pack(side=tk.BOTTOM, fill=tk.X)
+
+class PageTwo(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self,
+                         text='Page Two',
+                         font=LARGE_FONT)
+        label.pack(pady=10,padx=10)
+
+        button1 = tk.Button(self,
+                            text='Back to start',
+                            command=lambda: controller.show_frame(StartPage))
+        button1.pack()
+
+        button2 = tk.Button(self,
+                            text='Visit Page One',
+                            command=lambda: controller.show_frame(PageOne))
+        button2.pack()
+
+
+        status = tk.Label(self,
+                          text='On Page Two...',
                           bd=1,
                           relief=tk.SUNKEN,
                           anchor=tk.W)
