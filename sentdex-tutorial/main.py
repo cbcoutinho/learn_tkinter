@@ -1,3 +1,10 @@
+import numpy as np
+
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.figure import Figure
+
 import tkinter as tk
 from tkinter import ttk
 
@@ -12,7 +19,6 @@ class SeaofBTCapp(tk.Tk):
 
         tk.Tk.__init__(self, *args, **kwargs)
         img = tk.PhotoImage(file='resources/myicon.png')
-        print(img)
         self.tk.call('wm', 'iconphoto', self._w, img)
         self.title("The amazing tutorial app")
 
@@ -35,7 +41,7 @@ class SeaofBTCapp(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, PageOne, PageTwo):
+        for F in (StartPage, PageOne, PageTwo, GraphPage):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky='nsew')
@@ -69,6 +75,11 @@ class StartPage(tk.Frame):
                             command=lambda: controller.show_frame(PageTwo))
         button2.pack()
 
+        button3 = ttk.Button(self,
+                            text='Visit Graph Page',
+                            command=lambda: controller.show_frame(GraphPage))
+        button3.pack()
+
         status = tk.Label(self,
                           text='On Start Page...',
                           bd=1,
@@ -94,6 +105,11 @@ class PageOne(tk.Frame):
                             text='Visit Page Two',
                             command=lambda: controller.show_frame(PageTwo))
         button2.pack()
+
+        button3 = ttk.Button(self,
+                            text='Visit Graph Page',
+                            command=lambda: controller.show_frame(GraphPage))
+        button3.pack()
 
         status = tk.Label(self,
                           text='On Page One...',
@@ -121,9 +137,47 @@ class PageTwo(tk.Frame):
                             command=lambda: controller.show_frame(PageOne))
         button2.pack()
 
+        button3 = ttk.Button(self,
+                            text='Visit Graph Page',
+                            command=lambda: controller.show_frame(GraphPage))
+        button3.pack()
 
         status = tk.Label(self,
                           text='On Page Two...',
+                          bd=1,
+                          relief=tk.SUNKEN,
+                          anchor=tk.W)
+        status.pack(side=tk.BOTTOM, fill=tk.X)
+
+class GraphPage(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self,
+                         text='Graph Page',
+                         font=LARGE_FONT)
+        label.pack(pady=10,padx=10)
+
+        button1 = ttk.Button(self,
+                            text='Back to start',
+                            command=lambda: controller.show_frame(StartPage))
+        button1.pack()
+
+        f = Figure(figsize=(3,3), dpi=100)
+        ax = f.add_subplot(111)
+        x = np.linspace(0,11,10)
+        ax.plot(x, x*x)
+
+        canvas = FigureCanvasTkAgg(f, self)
+        canvas.show()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        toolbar = NavigationToolbar2TkAgg(canvas, self)
+        toolbar.update()
+        canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        status = tk.Label(self,
+                          text='On Graph Page...',
                           bd=1,
                           relief=tk.SUNKEN,
                           anchor=tk.W)
