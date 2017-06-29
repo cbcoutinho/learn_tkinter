@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -6,6 +7,9 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 import matplotlib.animation as animation
 from matplotlib import style
+
+import urllib
+import json
 
 import tkinter as tk
 from tkinter import ttk
@@ -18,18 +22,25 @@ f = Figure(figsize=(5,3), dpi=100)
 ax = f.add_subplot(111)
 
 def animate(i):
-    pullData = open('resources/sampleData.txt', 'r').read()
-    dataList = pullData.split('\n')
-    xList = []
-    yList = []
-    for line in dataList:
-        if len(line) > 1:
-            x, y = line.split(',')
-            xList.append(int(x))
-            yList.append(int(y))
+    dataLink = 'https://btc-e.com/api/3/trades/btc_usd?limit=2000'
+    data = urllib.request.urlopen(dataLink)
+    data = data.readall().decode('utf-8')
+    data = json.loads(data)
+    data = data['btc_usd']
+    data = pd.DataFrame(data)
+    data['datestamp'] = np.array(data.timestamp).astype('datetime64[s]')
+
+    buys = data[(data['type']=='bid')]
+    buyDates = buys.datestamp.tolist()
+
+    sells = data[(data['type']=='ask')]
+    sellDates = sells.datestamp.tolist()
 
     ax.clear()
-    ax.plot(xList, yList)
+    ax.plot_date(buyDates, buys['price'], linestyle='-', marker=None, label='Buys')
+    ax.plot_date(sellDates, sells['price'], linestyle='-', marker=None, label='Sells')
+
+    ax.legend()
 
 # SeaofBTCapp extends the tk.Tk class by basically setting up some defaults (adds frames, start with StartPage, etc.)
 class SeaofBTCapp(tk.Tk):
@@ -42,7 +53,6 @@ class SeaofBTCapp(tk.Tk):
         img = tk.PhotoImage(file='resources/myicon.png')
         self.tk.call('wm', 'iconphoto', self._w, img)
         self.title("The amazing tutorial app")
-
 
         container = tk.Frame(self)
         container.pack(side='top',
@@ -62,7 +72,7 @@ class SeaofBTCapp(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, PageOne, PageTwo, GraphPage):
+        for F in (StartPage, BTCe_Page):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky='nsew')
@@ -82,24 +92,19 @@ class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self,
-                         text='Start Page',
+                         text='Agree to the terms of the app?',
                          font=LARGE_FONT)
         label.pack(pady=10,padx=10)
 
         button1 = ttk.Button(self,
-                            text='Visit Page One',
-                            command=lambda: controller.show_frame(PageOne))
+                            text='Agree',
+                            command=lambda: controller.show_frame(BTCe_Page))
         button1.pack()
 
         button2 = ttk.Button(self,
-                            text='Visit Page Two',
-                            command=lambda: controller.show_frame(PageTwo))
+                            text='Disagree',
+                            command=quit)
         button2.pack()
-
-        button3 = ttk.Button(self,
-                            text='Visit Graph Page',
-                            command=lambda: controller.show_frame(GraphPage))
-        button3.pack()
 
         status = tk.Label(self,
                           text='On Start Page...',
@@ -139,38 +144,7 @@ class PageOne(tk.Frame):
                           anchor=tk.W)
         status.pack(side=tk.BOTTOM, fill=tk.X)
 
-class PageTwo(tk.Frame):
-
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self,
-                         text='Page Two',
-                         font=LARGE_FONT)
-        label.pack(pady=10,padx=10)
-
-        button1 = ttk.Button(self,
-                            text='Back to start',
-                            command=lambda: controller.show_frame(StartPage))
-        button1.pack()
-
-        button2 = ttk.Button(self,
-                            text='Visit Page One',
-                            command=lambda: controller.show_frame(PageOne))
-        button2.pack()
-
-        button3 = ttk.Button(self,
-                            text='Visit Graph Page',
-                            command=lambda: controller.show_frame(GraphPage))
-        button3.pack()
-
-        status = tk.Label(self,
-                          text='On Page Two...',
-                          bd=1,
-                          relief=tk.SUNKEN,
-                          anchor=tk.W)
-        status.pack(side=tk.BOTTOM, fill=tk.X)
-
-class GraphPage(tk.Frame):
+class BTCe_Page(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
