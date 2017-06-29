@@ -4,11 +4,32 @@ import matplotlib
 matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
+import matplotlib.animation as animation
+from matplotlib import style
 
 import tkinter as tk
 from tkinter import ttk
 
 LARGE_FONT = ('Verdana', 12)
+style.use('ggplot')
+# style.use('dark_background')
+
+f = Figure(figsize=(5,3), dpi=100)
+ax = f.add_subplot(111)
+
+def animate(i):
+    pullData = open('resources/sampleData.txt', 'r').read()
+    dataList = pullData.split('\n')
+    xList = []
+    yList = []
+    for line in dataList:
+        if len(line) > 1:
+            x, y = line.split(',')
+            xList.append(int(x))
+            yList.append(int(y))
+
+    ax.clear()
+    ax.plot(xList, yList)
 
 # SeaofBTCapp extends the tk.Tk class by basically setting up some defaults (adds frames, start with StartPage, etc.)
 class SeaofBTCapp(tk.Tk):
@@ -163,11 +184,6 @@ class GraphPage(tk.Frame):
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
-        f = Figure(figsize=(5,3), dpi=100)
-        ax = f.add_subplot(111)
-        x = np.linspace(0,11,10)
-        ax.plot(x, x*x)
-
         canvas = FigureCanvasTkAgg(f, self)
         canvas.show()
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -184,4 +200,6 @@ class GraphPage(tk.Frame):
         status.pack(side=tk.BOTTOM, fill=tk.X)
 
 app = SeaofBTCapp()
+ani = animation.FuncAnimation(f, animate, interval=1000)
+
 app.mainloop()
