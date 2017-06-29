@@ -163,7 +163,7 @@ class GraphPage(tk.Frame):
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
-        f = Figure(figsize=(3,3), dpi=100)
+        f = Figure(figsize=(5,3), dpi=100)
         ax = f.add_subplot(111)
         x = np.linspace(0,11,10)
         ax.plot(x, x*x)
