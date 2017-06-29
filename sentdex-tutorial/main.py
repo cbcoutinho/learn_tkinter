@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 
 LARGE_FONT = ('Verdana', 12)
 
@@ -10,14 +11,16 @@ class SeaofBTCapp(tk.Tk):
     def __init__(self, *args, **kwargs):
 
         tk.Tk.__init__(self, *args, **kwargs)
-        self.title("The title")
-        
-        container = tk.Frame(self)
+        img = tk.PhotoImage(file='resources/myicon.png')
+        print(img)
+        self.tk.call('wm', 'iconphoto', self._w, img)
+        self.title("The amazing tutorial app")
 
+
+        container = tk.Frame(self)
         container.pack(side='top',
                        fill='both',
                        expand=True)
-
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
@@ -56,12 +59,12 @@ class StartPage(tk.Frame):
                          font=LARGE_FONT)
         label.pack(pady=10,padx=10)
 
-        button1 = tk.Button(self,
+        button1 = ttk.Button(self,
                             text='Visit Page One',
                             command=lambda: controller.show_frame(PageOne))
         button1.pack()
 
-        button2 = tk.Button(self,
+        button2 = ttk.Button(self,
                             text='Visit Page Two',
                             command=lambda: controller.show_frame(PageTwo))
         button2.pack()
@@ -82,12 +85,12 @@ class PageOne(tk.Frame):
                          font=LARGE_FONT)
         label.pack(pady=10,padx=10)
 
-        button1 = tk.Button(self,
+        button1 = ttk.Button(self,
                             text='Back to start',
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
-        button2 = tk.Button(self,
+        button2 = ttk.Button(self,
                             text='Visit Page Two',
                             command=lambda: controller.show_frame(PageTwo))
         button2.pack()
@@ -108,12 +111,12 @@ class PageTwo(tk.Frame):
                          font=LARGE_FONT)
         label.pack(pady=10,padx=10)
 
-        button1 = tk.Button(self,
+        button1 = ttk.Button(self,
                             text='Back to start',
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
-        button2 = tk.Button(self,
+        button2 = ttk.Button(self,
                             text='Visit Page One',
                             command=lambda: controller.show_frame(PageOne))
         button2.pack()
