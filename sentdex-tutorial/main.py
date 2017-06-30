@@ -7,6 +7,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 import matplotlib.animation as animation
 from matplotlib import style
+from matplotlib import pyplot as plt
 
 import urllib
 import json
@@ -18,7 +19,7 @@ LARGE_FONT = ('Verdana', 12)
 style.use('ggplot')
 # style.use('dark_background')
 
-f = Figure(figsize=(8,4), dpi=100)
+f = Figure()
 ax = f.add_subplot(111)
 
 def animate(i):
@@ -177,6 +178,8 @@ class BTCe_Page(tk.Frame):
         status.pack(side=tk.BOTTOM, fill=tk.X)
 
 app = SeaofBTCapp()
+app.geometry("800x600")
+
 ani = animation.FuncAnimation(f, animate, interval=500)
 
 app.mainloop()
