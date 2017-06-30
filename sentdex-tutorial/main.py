@@ -18,7 +18,7 @@ LARGE_FONT = ('Verdana', 12)
 style.use('ggplot')
 # style.use('dark_background')
 
-f = Figure(figsize=(5,3), dpi=100)
+f = Figure(figsize=(8,4), dpi=100)
 ax = f.add_subplot(111)
 
 def animate(i):
@@ -37,10 +37,12 @@ def animate(i):
     sellDates = sells.datestamp.tolist()
 
     ax.clear()
-    ax.plot_date(buyDates, buys['price'], linestyle='-', marker=None, label='Buys')
-    ax.plot_date(sellDates, sells['price'], linestyle='-', marker=None, label='Sells')
+    ax.plot_date(buyDates, buys['price'], '#00A3E0', linestyle='-', marker=None, label='Buys')
+    ax.plot_date(sellDates, sells['price'], '#183A54', linestyle='-', marker=None, label='Sells')
 
-    ax.legend()
+    ax.set_title('BTC-e BTCUSD Prices\nLast Price: ' + str(data.price[0]))
+    ax.set_ylabel('Price [$]')
+    ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.102), loc=3, ncol=2, borderaxespad=0)
 
 # SeaofBTCapp extends the tk.Tk class by basically setting up some defaults (adds frames, start with StartPage, etc.)
 class SeaofBTCapp(tk.Tk):
@@ -114,6 +116,7 @@ class StartPage(tk.Frame):
         status.pack(side=tk.BOTTOM, fill=tk.X)
 
 class PageOne(tk.Frame):
+    ''' This page no longer used - only available for reference'''
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -174,6 +177,6 @@ class BTCe_Page(tk.Frame):
         status.pack(side=tk.BOTTOM, fill=tk.X)
 
 app = SeaofBTCapp()
-ani = animation.FuncAnimation(f, animate, interval=1000)
+ani = animation.FuncAnimation(f, animate, interval=500)
 
 app.mainloop()
