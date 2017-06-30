@@ -7,7 +7,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 import matplotlib.animation as animation
 from matplotlib import style
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 
 import urllib
 import json
@@ -27,6 +27,36 @@ ax = f.add_subplot(111)
 exchange = 'BTC-e'
 DatCounter = 9000
 programName = 'btce'
+
+ResampleSize = '15Min'
+CandleWidth = 0.008
+
+DataPace = '1d'
+
+def changeTimeFrame(tf):
+    global DataPace
+    global DatCounter
+    if tf == '7d' and resampleSize == '1Min':
+        popup('Too much data!\nChoose smaller timeframe or higher OHLC Interval')
+    else:
+        DataPace = tf
+        DatCounter = 9000
+
+def changeSampleSize(size, width):
+    global resampleSize
+    global DatCounter
+    global CandleWidth
+
+    if DataPace == '7d' and resampleSize == '1Min':
+        popupmsg('Too much data!\nChoose smaller timeframe or higher OHLC Interval')
+
+    elif DataPace == 'tick':
+        popupmsg("You're currently viewing tick data, not OHLC")
+
+    else:
+        resampleSize = size
+        DatCounter = 9000
+        CandleWidth = width
 
 def changeExchange(exName, exCode):
     global exchange
@@ -113,6 +143,41 @@ class SeaofBTCapp(tk.Tk):
                                    command=lambda: changeExchange('Bitstamp','bitstamp'))
         exchangeChoice.add_command(label='Huobi',
                                    command=lambda: changeExchange('Huobi','huobi'))
+
+        dataTF = tk.Menu(menubar, tearoff=True)
+        menubar.add_cascade(label='Tick', menu=dataTF)
+
+        dataTF.add_command(label='Tick',
+                           command=lambda: changeTimeFrame('tick'))
+        dataTF.add_command(label='1 Day',
+                           command=lambda: changeTimeFrame('1d'))
+        dataTF.add_command(label='3 Days',
+                           command=lambda: changeTimeFrame('3d'))
+        dataTF.add_command(label='1 Week',
+                           command=lambda: changeTimeFrame('7d'))
+
+        # OHLCI = Open High Low Close Interval
+        OHLCI = tk.Menu(menubar, tearoff=True)
+        menubar.add_cascade(label='OHLC Interval', menu=OHLCI)
+
+        OHLCI.add_command(label='Tick',
+                          command=lambda: changeTimeFrame('tick'))
+        OHLCI.add_command(label='1 minute',
+                          command=lambda: changeSampleSize('1Min', 0.0005))
+        OHLCI.add_command(label='5 minutes',
+                          command=lambda: changeSampleSize('5Min', 0.003))
+        OHLCI.add_command(label='15 minutes',
+                          command=lambda: changeSampleSize('15Min', 0.008))
+        OHLCI.add_command(label='30 minutes',
+                          command=lambda: changeSampleSize('30Min', 0.016))
+        OHLCI.add_command(label='1 hour',
+                          command=lambda: changeSampleSize('1H', 0.032))
+        OHLCI.add_command(label='3 hours',
+                          command=lambda: changeSampleSize('3H', 0.096))
+
+
+
+
 
         self.frames = {}
 
