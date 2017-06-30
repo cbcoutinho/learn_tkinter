@@ -58,19 +58,20 @@ class SeaofBTCapp(tk.Tk):
         self.title("The amazing tutorial app")
 
         container = tk.Frame(self)
-        container.pack(side='top',
-                       fill='both',
-                       expand=True)
+        container.pack(side='top', fill='both', expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
         # Add menu with exit button
-        menu = tk.Menu(self)
+        menu = tk.Menu(container)
         self.config(menu=menu)
 
-        subMenu = tk.Menu(menu)
-        menu.add_cascade(label='File', menu=subMenu)
-        subMenu.add_command(label='Exit', command=self.quit)
+        fileMenu = tk.Menu(menu, tearoff=False)
+        menu.add_cascade(label='File', menu=fileMenu)
+
+        fileMenu.add_command(label='Save Settings', command=lambda: popupmsg('Not Yet Supported'))
+        fileMenu.add_separator()
+        fileMenu.add_command(label='Exit', command=self.quit)
 
 
         self.frames = {}
@@ -180,6 +181,6 @@ class BTCe_Page(tk.Frame):
 app = SeaofBTCapp()
 app.geometry("800x600")
 
-ani = animation.FuncAnimation(f, animate, interval=500)
+ani = animation.FuncAnimation(f, animate, interval=5000)
 
 app.mainloop()
