@@ -21,8 +21,8 @@ SMALL_FONT  = ('Verdana',  8)
 style.use('ggplot')
 # style.use('dark_background')
 
-f = Figure()
-ax = f.add_subplot(111)
+fig = Figure()
+ax = fig.add_subplot(111)
 
 exchange = 'BTC-e'
 DatCounter = 9000
@@ -32,10 +32,230 @@ DataPace = '1d'
 CandleWidth = 0.008
 
 topIndicator = 'None'
-mainIndicator = 'None'
+middleIndicator = 'None'
 bottomIndicator = 'None'
 EMAs = []
 SMAs = []
+
+def addMiddleIndicator(what):
+    global middleIndicator
+    global DatCounter
+
+    if DataPace == 'tick':
+        popupmsg('Indicators in Tick data not available')
+
+    elif what != 'none':
+        if middleIndicator == 'None':
+            if what == 'sma':
+                midIQ = tk.Tk()
+                midIQ.wm_title('Periods?')
+                label = ttk.Label(midIQ, text='Choose how many periods to consider for SMA')
+                label.pack(side='top', fill='x', pady=10)
+                e = ttk.Entry(midIQ)
+                e.insert(0, 10)
+                e.pack()
+                e.focus_set()
+
+                def callback():
+                    global middleIndicator
+                    global DatCounter
+
+                    middleIndicator = []
+                    periods = (e.get())
+                    group = []
+                    group.append('sma')
+                    group.append(int(periods))
+                    middleIndicator.append(group)
+                    DatCounter = 9000
+                    print('middle indicator set to:', middleIndicator)
+                    midIQ.destroy()
+
+                b = ttk.Button(midIQ, text='Submit', width=10, command=callback)
+                b.pack()
+                tk.mainloop()
+
+            elif what == 'ema':
+                midIQ = tk.Tk()
+                midIQ.wm_title('Periods?')
+                label = ttk.Label(midIQ, text='Choose how many periods to consider for EMA')
+                label.pack(side='top', fill='x', pady=10)
+                e = ttk.Entry(midIQ)
+                e.insert(0, 10)
+                e.pack()
+                e.focus_set()
+
+                def callback():
+                    global middleIndicator
+                    global DatCounter
+
+                    middleIndicator = []
+                    periods = (e.get())
+                    group = []
+                    group.append('ema')
+                    group.append(int(periods))
+                    middleIndicator.append(group)
+                    DatCounter = 9000
+                    print('middle indicator set to:', middleIndicator)
+                    midIQ.destroy()
+
+                b = ttk.Button(midIQ, text='Submit', width=10, command=callback)
+                b.pack()
+                tk.mainloop()
+
+        else:
+            if what == 'sma':
+                midIQ = tk.Tk()
+                midIQ.wm_title('Periods?')
+                label = ttk.Label(midIQ, text='Choose how many periods to consider for SMA')
+                label.pack(side='top', fill='x', pady=10)
+                e = ttk.Entry(midIQ)
+                e.insert(0, 10)
+                e.pack()
+                e.focus_set()
+
+                def callback():
+                    global middleIndicator
+                    global DatCounter
+
+                    # middleIndicator = []
+                    periods = (e.get())
+                    group = []
+                    group.append('sma')
+                    group.append(int(periods))
+                    middleIndicator.append(group)
+                    DatCounter = 9000
+                    print('middle indicator set to:', middleIndicator)
+                    midIQ.destroy()
+
+                b = ttk.Button(midIQ, text='Submit', width=10, command=callback)
+                b.pack()
+                tk.mainloop()
+
+            elif what == 'ema':
+                midIQ = tk.Tk()
+                midIQ.wm_title('Periods?')
+                label = ttk.Label(midIQ, text='Choose how many periods to consider for EMA')
+                label.pack(side='top', fill='x', pady=10)
+                e = ttk.Entry(midIQ)
+                e.insert(0, 10)
+                e.pack()
+                e.focus_set()
+
+                def callback():
+                    global middleIndicator
+                    global DatCounter
+
+                    # middleIndicator = []
+                    periods = (e.get())
+                    group = []
+                    group.append('ema')
+                    group.append(int(periods))
+                    middleIndicator.append(group)
+                    DatCounter = 9000
+                    print('middle indicator set to:', middleIndicator)
+                    midIQ.destroy()
+
+                b = ttk.Button(midIQ, text='Submit', width=10, command=callback)
+                b.pack()
+                tk.mainloop()
+    else:
+        middleIndicator = 'none'
+
+def addTopIndicator(what):
+    global topIndicator
+    global DatCounter
+
+    if DataPace == 'tick':
+        popupmsg('Indicators in Tick data not available')
+
+    elif what == 'none':
+        topIndicator = what
+        DatCounter = 9000
+
+    elif what == 'rsi':
+        rsiQ = tk.Tk()
+        rsiQ.wm_title('Periods?')
+        label = ttk.Label(rsiQ, text='Choose how many periods to consider for RSI')
+        label.pack(side='top', fill='x', pady=10)
+
+        e = ttk.Entry(rsiQ)
+        e.insert(0,14)
+        e.pack()
+        e.focus_set()
+
+        def callback():
+            global topIndicator
+            global DatCounter
+
+            periods = (e.get())
+            group = []
+            group.append('rsi')
+            group.append(periods)
+
+            topIndicator = group
+            DatCounter = 9000
+            print('Set top indicator to', group)
+
+            rsiQ.destroy()
+
+        b = ttk.Button(rsiQ, text='Submit', width=10, command=callback)
+        b.pack()
+        tk.mainloop()
+
+    elif what == 'macd':
+        global topIndicator
+        global DatCounter
+
+        topIndicator = 'macd'
+        DatCounter = 9000
+
+def addBottomIndicator(what):
+    global bottomIndicator
+    global DatCounter
+
+    if DataPace == 'tick':
+        popupmsg('Indicators in Tick data not available')
+
+    elif what == 'none':
+        bottomIndicator = what
+        DatCounter = 9000
+
+    elif what == 'rsi':
+        rsiQ = tk.Tk()
+        rsiQ.wm_title('Periods?')
+        label = ttk.Label(rsiQ, text='Choose how many periods to consider for RSI')
+        label.pack(side='top', fill='x', pady=10)
+
+        e = ttk.Entry(rsiQ)
+        e.insert(0,14)
+        e.pack()
+        e.focus_set()
+
+        def callback():
+            global bottomIndicator
+            global DatCounter
+
+            periods = (e.get())
+            group = []
+            group.append('rsi')
+            group.append(periods)
+
+            bottomIndicator = group
+            DatCounter = 9000
+            print('Set bottom indicator to', group)
+
+            rsiQ.destroy()
+
+        b = ttk.Button(rsiQ, text='Submit', width=10, command=callback)
+        b.pack()
+        tk.mainloop()
+
+    elif what == 'macd':
+        global bottomIndicator
+        global DatCounter
+
+        bottomIndicator = 'macd'
+        DatCounter = 9000
 
 def changeTimeFrame(tf):
     global DataPace
@@ -191,15 +411,15 @@ class SeaofBTCapp(tk.Tk):
                                  command=lambda: addTopIndicator('macd'))
 
 
-        mainIndicator = tk.Menu(menubar, tearoff=True)
-        menubar.add_cascade(label='Main/Middle Indicator', menu=mainIndicator)
+        middleIndicator = tk.Menu(menubar, tearoff=True)
+        menubar.add_cascade(label='Main/Middle Indicator', menu=middleIndicator)
 
-        mainIndicator.add_command(label=None,
-                                 command=lambda: addMainIndicator('None'))
-        mainIndicator.add_command(label='SMA',
-                                 command=lambda: addMainIndicator('sma'))
-        mainIndicator.add_command(label='EMA',
-                                 command=lambda: addMainIndicator('ema'))
+        middleIndicator.add_command(label=None,
+                                 command=lambda: addMiddleIndicator('None'))
+        middleIndicator.add_command(label='SMA',
+                                 command=lambda: addMiddleIndicator('sma'))
+        middleIndicator.add_command(label='EMA',
+                                 command=lambda: addMiddleIndicator('ema'))
 
 
         bottomIndicator = tk.Menu(menubar, tearoff=True)
@@ -219,9 +439,9 @@ class SeaofBTCapp(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, BTCe_Page):
-            frame = F(container, self)
-            self.frames[F] = frame
+        for page in (StartPage, BTCe_Page):
+            frame = page(container, self)
+            self.frames[page] = frame
             frame.grid(row=0, column=0, sticky='nsew')
 
         self.show_frame(StartPage)
@@ -306,7 +526,7 @@ class BTCe_Page(tk.Frame):
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
-        canvas = FigureCanvasTkAgg(f, self)
+        canvas = FigureCanvasTkAgg(fig, self)
         canvas.show()
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -324,6 +544,6 @@ class BTCe_Page(tk.Frame):
 app = SeaofBTCapp()
 app.geometry("800x600")
 
-ani = animation.FuncAnimation(f, animate, interval=5000)
+ani = animation.FuncAnimation(fig, animate, interval=5000)
 
 app.mainloop()
