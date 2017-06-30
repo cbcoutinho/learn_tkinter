@@ -27,11 +27,15 @@ ax = f.add_subplot(111)
 exchange = 'BTC-e'
 DatCounter = 9000
 programName = 'btce'
-
 ResampleSize = '15Min'
+DataPace = '1d'
 CandleWidth = 0.008
 
-DataPace = '1d'
+topIndicator = 'None'
+mainIndicator = 'None'
+bottomIndicator = 'None'
+EMAs = []
+SMAs = []
 
 def changeTimeFrame(tf):
     global DataPace
@@ -174,6 +178,40 @@ class SeaofBTCapp(tk.Tk):
                           command=lambda: changeSampleSize('1H', 0.032))
         OHLCI.add_command(label='3 hours',
                           command=lambda: changeSampleSize('3H', 0.096))
+
+
+        topIndicator = tk.Menu(menubar, tearoff=True)
+        menubar.add_cascade(label='Top Indicator', menu=topIndicator)
+
+        topIndicator.add_command(label=None,
+                                 command=lambda: addTopIndicator('None'))
+        topIndicator.add_command(label='RSI',
+                                 command=lambda: addTopIndicator('rsi'))
+        topIndicator.add_command(label='MACD',
+                                 command=lambda: addTopIndicator('macd'))
+
+
+        mainIndicator = tk.Menu(menubar, tearoff=True)
+        menubar.add_cascade(label='Main/Middle Indicator', menu=mainIndicator)
+
+        mainIndicator.add_command(label=None,
+                                 command=lambda: addMainIndicator('None'))
+        mainIndicator.add_command(label='SMA',
+                                 command=lambda: addMainIndicator('sma'))
+        mainIndicator.add_command(label='EMA',
+                                 command=lambda: addMainIndicator('ema'))
+
+
+        bottomIndicator = tk.Menu(menubar, tearoff=True)
+        menubar.add_cascade(label='Bottom Indicator', menu=bottomIndicator)
+
+        bottomIndicator.add_command(label=None,
+                                 command=lambda: addBottomIndicator('None'))
+        bottomIndicator.add_command(label='RSI',
+                                 command=lambda: addBottomIndicator('rsi'))
+        bottomIndicator.add_command(label='MACD',
+                                 command=lambda: addBottomIndicator('macd'))
+
 
 
 
