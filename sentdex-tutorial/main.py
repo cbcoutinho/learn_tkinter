@@ -15,12 +15,41 @@ import json
 import tkinter as tk
 from tkinter import ttk
 
-LARGE_FONT = ('Verdana', 12)
+LARGE_FONT  = ('Verdana', 12)
+NORM_FONT   = ('Verdana', 10)
+SMALL_FONT  = ('Verdana',  8)
 style.use('ggplot')
 # style.use('dark_background')
 
 f = Figure()
 ax = f.add_subplot(111)
+
+exchange = 'BTC-e'
+DatCounter = 9000
+programName = 'btce'
+
+def changeExchange(exName, exCode):
+    global exchange
+    global DatCounter
+    global programName
+
+    exchange = exName
+    programName = exCode
+    DatCounter = 9000
+
+    print(exchange, ' and ', programName)
+
+def popupmsg(msg):
+    popup = tk.Tk()
+
+    popup.wm_title('!')
+    label = ttk.Label(popup, text=msg, font=NORM_FONT)
+    label.pack(side='top', fill='x', pady=10)
+
+    b1 = ttk.Button(popup, text='Okay',
+                    command=popup.destroy)
+    b1.pack()
+    popup.mainloop()
 
 def animate(i):
     dataLink = 'https://btc-e.com/api/3/trades/btc_usd?limit=2000'
@@ -63,16 +92,27 @@ class SeaofBTCapp(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         # Add menu with exit button
-        menu = tk.Menu(container)
-        self.config(menu=menu)
+        menubar = tk.Menu(container)
+        self.config(menu=menubar)
 
-        fileMenu = tk.Menu(menu, tearoff=False)
-        menu.add_cascade(label='File', menu=fileMenu)
+        fileMenu = tk.Menu(menubar, tearoff=False)
+        menubar.add_cascade(label='File', menu=fileMenu)
 
         fileMenu.add_command(label='Save Settings', command=lambda: popupmsg('Not Yet Supported'))
         fileMenu.add_separator()
         fileMenu.add_command(label='Exit', command=self.quit)
 
+        exchangeChoice = tk.Menu(menubar, tearoff=False)
+        menubar.add_cascade(label='Exchange', menu=exchangeChoice)
+
+        exchangeChoice.add_command(label='BTC-e',
+                                   command=lambda: changeExchange('BTC-e','btce'))
+        exchangeChoice.add_command(label='Bitfinex',
+                                   command=lambda: changeExchange('Bitfinex','bitfinex'))
+        exchangeChoice.add_command(label='Bitstamp',
+                                   command=lambda: changeExchange('Bitstamp','bitstamp'))
+        exchangeChoice.add_command(label='Huobi',
+                                   command=lambda: changeExchange('Huobi','huobi'))
 
         self.frames = {}
 
