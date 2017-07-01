@@ -40,6 +40,47 @@ chartLoad = True
 EMAs = []
 SMAs = []
 
+def tutorial():
+
+    def leavemini(what):
+        what.destroy()
+
+    def page2():
+        tut.destroy()
+        tut2 = tk.Tk()
+
+        def page3():
+            tut2.destroy()
+            tut3 = tk.Tk()
+
+            tut3.wm_title('Part 3')
+            label = ttk.Label(tut3, text='Part 3', font=NORM_FONT)
+            label.pack(side='top', fill='x', pady=10)
+            b1 = ttk.Button(tut3, text='Done', command=tut3.destroy)
+            b1.pack()
+            tut3.mainloop()
+
+        tut2.wm_title('Part 2')
+        label = ttk.Label(tut2, text='Part 2', font=NORM_FONT)
+        label.pack(side='top', fill='x', pady=10)
+        b1 = ttk.Button(tut2, text='Next', command=page3)
+        b1.pack()
+        tut2.mainloop()
+
+    tut = tk.Tk()
+    tut.wm_title('Tutorial')
+    label = ttk.Label(tut, text='What do you need help with?', font=NORM_FONT)
+    label.pack(side='top', fill='x', pady=10)
+
+    b1 = ttk.Button(tut, text='Overview of the application', command=page2)
+    b1.pack()
+    b2 = ttk.Button(tut, text='How do I trade', command=lambda: popupmsg('Not yet completed'))
+    b2.pack()
+    b3 = ttk.Button(tut, text='Indicator Questions/Help', command=lambda: popupmsg('Not yet completed'))
+    b3.pack()
+
+    tut.mainloop()
+
 def loadChart(startStop):
     global chartLoad
 
@@ -48,10 +89,7 @@ def loadChart(startStop):
     elif startStop == 'stop':
         chartLoad = False
 
-    print('Chart load set to', chartLoad)
-
-def tutorial():
-    pass
+    # print('Chart load set to', chartLoad)
 
 def quit():
     # quit()
