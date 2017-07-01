@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import sys
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -14,6 +15,7 @@ import json
 
 import tkinter as tk
 from tkinter import ttk
+from PIL import ImageTk, Image
 
 LARGE_FONT  = ('Verdana', 12)
 NORM_FONT   = ('Verdana', 10)
@@ -36,6 +38,10 @@ middleIndicator = 'None'
 bottomIndicator = 'None'
 EMAs = []
 SMAs = []
+
+def quit():
+    # quit()
+    sys.exit(0)
 
 def addMiddleIndicator(what):
     global middleIndicator
@@ -203,8 +209,8 @@ def addTopIndicator(what):
         tk.mainloop()
 
     elif what == 'macd':
-        global topIndicator
-        global DatCounter
+        # global topIndicator
+        # global DatCounter
 
         topIndicator = 'macd'
         DatCounter = 9000
@@ -251,8 +257,8 @@ def addBottomIndicator(what):
         tk.mainloop()
 
     elif what == 'macd':
-        global bottomIndicator
-        global DatCounter
+        # global bottomIndicator
+        # global DatCounter
 
         bottomIndicator = 'macd'
         DatCounter = 9000
@@ -261,7 +267,7 @@ def changeTimeFrame(tf):
     global DataPace
     global DatCounter
     if tf == '7d' and resampleSize == '1Min':
-        popup('Too much data!\nChoose smaller timeframe or higher OHLC Interval')
+        popupmsg('Too much data!\nChoose smaller timeframe or higher OHLC Interval')
     else:
         DataPace = tf
         DatCounter = 9000
@@ -308,7 +314,8 @@ def popupmsg(msg):
 def animate(i):
     dataLink = 'https://btc-e.com/api/3/trades/btc_usd?limit=2000'
     data = urllib.request.urlopen(dataLink)
-    data = data.readall().decode('utf-8')
+    # data = data.readall().decode('utf-8')
+    data = data.read().decode('utf-8')
     data = json.loads(data)
     data = data['btc_usd']
     data = pd.DataFrame(data)
@@ -336,9 +343,15 @@ class SeaofBTCapp(tk.Tk):
     def __init__(self, *args, **kwargs):
 
         tk.Tk.__init__(self, *args, **kwargs)
-        img = tk.PhotoImage(file='resources/myicon.png')
+        filename = 'resources/myicon.png'
+        # img = tk.PhotoImage(file=filename)
+
+        img = ImageTk.PhotoImage(Image.open(filename))
+
+
         self.tk.call('wm', 'iconphoto', self._w, img)
         self.title("The amazing tutorial app")
+        # self.wm_title('The app')
 
         container = tk.Frame(self)
         container.pack(side='top', fill='both', expand=True)
@@ -433,6 +446,9 @@ class SeaofBTCapp(tk.Tk):
                                  command=lambda: addBottomIndicator('macd'))
 
 
+        tradeButton = tk.Menu(menubar, tearoff=True)
+        menubar.add_cascade(label='Manual trading',
+                            command=lambda: popupmsg('This is not live yet'))
 
 
 
