@@ -36,8 +36,22 @@ CandleWidth = 0.008
 topIndicator = 'None'
 middleIndicator = 'None'
 bottomIndicator = 'None'
+chartLoad = True
 EMAs = []
 SMAs = []
+
+def loadChart(startStop):
+    global chartLoad
+
+    if startStop == 'start':
+        chartLoad = True
+    elif startStop == 'stop':
+        chartLoad = False
+
+    print('Chart load set to', chartLoad)
+
+def tutorial():
+    pass
 
 def quit():
     # quit()
@@ -350,7 +364,7 @@ class SeaofBTCapp(tk.Tk):
 
 
         self.tk.call('wm', 'iconphoto', self._w, img)
-        self.title("The amazing tutorial app")
+        self.title("The amazing BTC trading app")
         # self.wm_title('The app')
 
         container = tk.Frame(self)
@@ -358,7 +372,8 @@ class SeaofBTCapp(tk.Tk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
-        # Add menu with exit button
+        # *** Add menu with exit button ***
+
         menubar = tk.Menu(container)
         self.config(menu=menubar)
 
@@ -393,7 +408,7 @@ class SeaofBTCapp(tk.Tk):
         dataTF.add_command(label='1 Week',
                            command=lambda: changeTimeFrame('7d'))
 
-        # OHLCI = Open High Low Close Interval
+        # *** OHLCI = Open High Low Close Interval ***
         OHLCI = tk.Menu(menubar, tearoff=True)
         menubar.add_cascade(label='OHLC Interval', menu=OHLCI)
 
@@ -412,6 +427,7 @@ class SeaofBTCapp(tk.Tk):
         OHLCI.add_command(label='3 hours',
                           command=lambda: changeSampleSize('3H', 0.096))
 
+         # *** Create Top/Middle/Bottom Indicators ***
 
         topIndicator = tk.Menu(menubar, tearoff=True)
         menubar.add_cascade(label='Top Indicator', menu=topIndicator)
@@ -445,10 +461,40 @@ class SeaofBTCapp(tk.Tk):
         bottomIndicator.add_command(label='MACD',
                                  command=lambda: addBottomIndicator('macd'))
 
+         # *** Create a trading button ***
 
         tradeButton = tk.Menu(menubar, tearoff=True)
-        menubar.add_cascade(label='Manual trading',
-                            command=lambda: popupmsg('This is not live yet'))
+        menubar.add_cascade(label='Trading', menu=tradeButton)
+        tradeButton.add_command(label='Manual Trading',
+                                command=lambda: popupmsg('This is not live yet'))
+        tradeButton.add_command(label='Automatic Trading',
+                                command=lambda: popupmsg('This is not live yet'))
+
+        tradeButton.add_separator()
+        tradeButton.add_command(label='Quick Buy',
+                                command=lambda: popupmsg('This is not live yet'))
+        tradeButton.add_command(label='Quick Sell',
+                                command=lambda: popupmsg('This is not live yet'))
+
+        tradeButton.add_separator()
+        tradeButton.add_command(label='Set up Quick Buy/Sell',
+                                command=lambda: popupmsg('This is not live yet'))
+
+        startStop = tk.Menu(menubar, tearoff=True)
+        menubar.add_cascade(label='Start/Stop Client', menu=startStop)
+        startStop.add_command(label='Resume',
+                              command=lambda: loadChart('start'))
+        startStop.add_command(label='Pause',
+                              command=lambda: loadChart('stop'))
+
+        # *** Create Help menu ***
+
+        helpMenu = tk.Menu(menubar, tearoff=False)
+        menubar.add_cascade(label='Help', menu=helpMenu)
+        helpMenu.add_command(label='About MyApp',
+                              command=lambda: popupmsg('This is not yet live yet'))
+        helpMenu.add_command(label='Tutorial',
+                              command=tutorial)
 
 
 
