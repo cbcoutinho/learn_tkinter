@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import sys
+import sys, os
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -8,7 +8,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 import matplotlib.animation as animation
 from matplotlib import style
 from matplotlib import pyplot as plt
-import matplotlib.dates as ndates
+import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
 
 import urllib
@@ -35,6 +35,9 @@ ResampleSize = '15Min'
 DataPace = 'tick'
 CandleWidth = 0.008
 paneCount = 1
+
+LIGHT_COLOR = '#00A3E0'
+DARK_COLOR = '#183A54'
 
 topIndicator = 'None'
 middleIndicator = 'None'
@@ -374,46 +377,177 @@ def animate(i):
         if paneCount == 1:
             if DataPace == 'tick':
                 try:
+                    if exchange == 'BTC-e':
 
-                    ax = plt.subplot2grid((6,4), (0,0),
-                                          rowspan=5, colspan=4)
-                    ax2 = plt.subplot2grid((6,4), (5,0),
-                                           rowspan=1, colspan=4,
-                                           sharex=ax)
+                        ax = plt.subplot2grid((6,4), (0,0),
+                                              rowspan=5, colspan=4)
+                        ax2 = plt.subplot2grid((6,4), (5,0),
+                                               rowspan=1, colspan=4,
+                                               sharex=ax)
+
+                        dataLink = 'https://btc-e.com/api/3/trades/btc_usd?limit=2000'
+                        data = urllib.request.urlopen(dataLink)
+                        # data = data.readall().decode('utf-8')
+                        data = data.read().decode('utf-8')
+                        data = json.loads(data)
+                        data = data['btc_usd']
+                        data = pd.DataFrame(data)
+
+                        data['datestamp'] = np.array(data.timestamp).astype('datetime64[s]')
+                        allDates = data.datestamp.tolist()
+
+                        buys = data.loc[data.type == 'bid']
+                        buyDates = buys.datestamp.tolist()
+
+                        sells = data.loc[data.type == 'ask']
+                        sellDates = sells.datestamp.tolist()
+
+                        volume = data['amount']
+
+                        ax.clear()
+                        ax.plot_date(buyDates, buys['price'], LIGHT_COLOR, linestyle='-', marker=None, label='Buys')
+                        ax.plot_date(sellDates, sells['price'], DARK_COLOR, linestyle='-', marker=None, label='Sells')
+
+                        ax2.fill_between(allDates, 0, volume, facecolor=DARK_COLOR)
+                        # ax2.fill_between(allDates, 1e-1, volume, facecolor='#FF0000')
+                        # ax2.set_yscale('log')
+
+                        ax.xaxis.set_major_locator(mticker.MaxNLocator(4))
+                        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M:%S'))
+                        plt.setp(ax.get_xticklabels(), visible=False)
+
+                        ax.set_title('BTC-e BTCUSD Prices\nLast Price: ' + str(data.price[0]))
+                        ax.set_ylabel('Price [$]')
+                        ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.102), loc=3, ncol=2, borderaxespad=0)
+
+                    elif exchange == 'Bitstamp':
+
+                        ax = plt.subplot2grid((6,4), (0,0),
+                                              rowspan=5, colspan=4)
+                        ax2 = plt.subplot2grid((6,4), (5,0),
+                                               rowspan=1, colspan=4,
+                                               sharex=ax)
 
 
-                    dataLink = 'https://btc-e.com/api/3/trades/btc_usd?limit=2000'
-                    data = urllib.request.urlopen(dataLink)
-                    # data = data.readall().decode('utf-8')
-                    data = data.read().decode('utf-8')
-                    data = json.loads(data)
-                    data = data['btc_usd']
-                    data = pd.DataFrame(data)
-                    data['datestamp'] = np.array(data.timestamp).astype('datetime64[s]')
-                    allDates = data.datestamp.tolist()
+                        dataLink = 'https://www.bitstamp.net/api/transactions/'
+                        data = urllib.request.urlopen(dataLink)
+                        # data = data.readall().decode('utf-8')
+                        data = data.read().decode('utf-8')
+                        data = json.loads(data)
+                        data = pd.DataFrame(data)
 
-                    buys = data[(data['type']=='bid')]
-                    buyDates = buys.datestamp.tolist()
+                        for col in ['amount', 'price']:
+                            data[col] = data[col].apply(float)
 
-                    sells = data[(data['type']=='ask')]
-                    sellDates = sells.datestamp.tolist()
+                        data['datestamp'] = np.array(data.date.apply(int)).astype('datetime64[s]')
+                        # data.sort_values(by='datestamp', inplace=True)
+                        allDates = data.datestamp.tolist()
 
-                    volume = data['amount']
+                        buys = data.loc[data.type == 0]
+                        buyDates = buys.datestamp.tolist()
 
-                    ax.clear()
-                    ax.plot_date(buyDates, buys['price'], '#00A3E0', linestyle='-', marker=None, label='Buys')
-                    ax.plot_date(sellDates, sells['price'], '#183A54', linestyle='-', marker=None, label='Sells')
+                        sells = data.loc[data.type == 1]
+                        sellDates = sells.datestamp.tolist()
 
-                    ax2.fill_between(allDates, 0, volume, facecolor='#FF0000')
-                    # ax2.fill_between(allDates, 1e-1, volume, facecolor='#FF0000')
-                    # ax2.set_yscale('log')
+                        volume = data['amount'].tolist()
 
-                    ax.xaxis.set_major_locator(mticker.MaxNLocator(4))
-                    ax.xaxis.set_major_formatter(ndates.DateFormatter('%Y-%m-%d %H:%M:%S'))
+                        ax.clear()
+                        ax.plot_date(buyDates, buys['price'], LIGHT_COLOR, linestyle='-', marker=None, label='Buys')
+                        ax.plot_date(sellDates, sells['price'], DARK_COLOR, linestyle='-', marker=None, label='Sells')
 
-                    ax.set_title('BTC-e BTCUSD Prices\nLast Price: ' + str(data.price[0]))
-                    ax.set_ylabel('Price [$]')
-                    ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.102), loc=3, ncol=2, borderaxespad=0)
+                        ax2.fill_between(allDates, 0, volume, facecolor=DARK_COLOR)
+                        # ax2.fill_between(allDates, 1e-1, volume, facecolor='#FF0000')
+                        # ax2.set_yscale('log')
+
+                        ax.xaxis.set_major_locator(mticker.MaxNLocator(4))
+                        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M:%S'))
+                        plt.setp(ax.get_xticklabels(), visible=False)
+
+                        ax.set_title('Bitstamp BTCUSD Prices\nLast Price: ' + str(data.price[0]))
+                        ax.set_ylabel('Price [$]')
+                        ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.102), loc=3, ncol=2, borderaxespad=0)
+
+                    elif exchange == 'Bitfinex':
+
+                        ax = plt.subplot2grid((6,4), (0,0),
+                                              rowspan=5, colspan=4)
+                        ax2 = plt.subplot2grid((6,4), (5,0),
+                                               rowspan=1, colspan=4,
+                                               sharex=ax)
+
+                        dataLink = 'https://api.bitfinex.com/v1/trades/btcusd?limit=2000'
+                        data = urllib.request.urlopen(dataLink)
+                        # data = data.readall().decode('utf-8')
+                        data = data.read().decode('utf-8')
+                        data = json.loads(data)
+                        data = pd.DataFrame(data)
+
+                        for col in ['amount', 'price']:
+                            data[col] = data[col].apply(float)
+
+                        data['datestamp'] = np.array(data.timestamp).astype('datetime64[s]')
+                        allDates = data.datestamp.tolist()
+
+                        buys = data.loc[data.type == 'buy']
+                        buyDates = buys.datestamp.tolist()
+
+                        sells = data.loc[data.type == 'sell']
+                        sellDates = sells.datestamp.tolist()
+
+                        volume = data['amount']
+
+                        ax.clear()
+                        ax.plot_date(buyDates, buys['price'], LIGHT_COLOR, linestyle='-', marker=None, label='Buys')
+                        ax.plot_date(sellDates, sells['price'], DARK_COLOR, linestyle='-', marker=None, label='Sells')
+
+                        ax2.fill_between(allDates, 0, volume, facecolor=DARK_COLOR)
+                        # ax2.fill_between(allDates, 1e-1, volume, facecolor='#FF0000')
+                        # ax2.set_yscale('log')
+
+                        ax.xaxis.set_major_locator(mticker.MaxNLocator(4))
+                        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M:%S'))
+                        plt.setp(ax.get_xticklabels(), visible=False)
+
+                        ax.set_title('Bitfinex BTCUSD Prices\nLast Price: ' + str(data.price[0]))
+                        ax.set_ylabel('Price [$]')
+                        ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.102), loc=3, ncol=2, borderaxespad=0)
+
+                    elif exchange == 'Huobi':
+
+                        ax = plt.subplot2grid((6,4), (0,0),
+                                              rowspan=6, colspan=4)
+
+                        dataLink = 'http://seaofbtc.com/api/basic/price?key=1&tf=1d&exchange='+programName
+                        data = urllib.request.urlopen(dataLink)
+                        # data = data.readall().decode('utf-8')
+                        data = data.read().decode()
+                        data = json.loads(data)
+                        # data = pd.DataFrame(data)
+                        #
+                        # for col in ['amount', 'price']:
+                        #     data[col] = data[col].apply(float)
+
+                        dateStamp = np.array(data[0]).astype("datetime64[s]")
+                        df = pd.DataFrame({'datestamp': dateStamp})
+                        df['price'] = data[1]
+                        df['volume'] = data[2]
+                        df['symbol'] = 'BTCUSD'
+
+                        df['MPLDate'] = df['datestamp'].apply(lambda date: mdates.date2num(date.to_pydatetime()))
+
+                        df = df.set_index('datestamp')
+
+                        lastPrice = df.price[-1]
+
+                        ax.clear()
+                        ax.plot_date(df.MPLDate, df.price, LIGHT_COLOR, label='Price [$]')
+
+                        ax.xaxis.set_major_locator(mticker.MaxNLocator(4))
+                        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M:%S'))
+
+                        ax.set_title('Huobi BTCUSD Prices\nLast Price: ' + str(data.price[0]))
+                        ax.set_ylabel('Price [$]')
+                        ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.102), loc=3, ncol=2, borderaxespad=0)
 
                 except Exception as e:
                     print('Failed because of:', e)
@@ -428,12 +562,24 @@ class SeaofBTCapp(tk.Tk):
 
         tk.Tk.__init__(self, *args, **kwargs)
         # filename = 'resources/myicon.png'
-        filename = 'resources/myicon.ico'
+        # filename = 'resources/myicon.ico'
+        if os.name == 'nt':
+            filename = 'myicon.ico'
+            filename = os.path.abspath(os.path.join('resources', filename))
+        else:
+            filename = 'myicon.png'
+            # filename = 'myicon.xpm'
+            filename = os.path.abspath(os.path.join('resources', filename))
+            # filename = '@' + os.path.abspath(os.path.join('resources', filename))
 
+        # self.iconbitmap(bitmap=filename)
+        #
         # img = ImageTk.PhotoImage(Image.open(filename))
-        # img = tk.PhotoImage(file=filename)
-
+        img = tk.PhotoImage(file=filename)
+        #
         # self.tk.call('wm', 'iconphoto', self._w, img)
+        # self.iconphoto(True, img)
+        print(img)
 
         self.title("The amazing BTC trading app")
         # self.wm_title('The app')
