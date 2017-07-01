@@ -5,10 +5,11 @@ import sys
 import matplotlib
 matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
-from matplotlib.figure import Figure
 import matplotlib.animation as animation
 from matplotlib import style
-# from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt
+import matplotlib.dates as ndates
+import matplotlib.ticker as mticker
 
 import urllib
 import json
@@ -23,15 +24,17 @@ SMALL_FONT  = ('Verdana',  8)
 style.use('ggplot')
 # style.use('dark_background')
 
-fig = Figure()
-ax = fig.add_subplot(111)
+fig = plt.figure()
+# ax = fig.add_subplot(111)
 
 exchange = 'BTC-e'
 DatCounter = 9000
+refreshRate = 0.0
 programName = 'btce'
 ResampleSize = '15Min'
-DataPace = '1d'
+DataPace = 'tick'
 CandleWidth = 0.008
+paneCount = 1
 
 topIndicator = 'None'
 middleIndicator = 'None'
@@ -92,8 +95,8 @@ def loadChart(startStop):
     # print('Chart load set to', chartLoad)
 
 def quit():
-    # quit()
-    sys.exit(0)
+    quit()
+    # sys.exit(0)
 
 def addMiddleIndicator(what):
     global middleIndicator
@@ -364,28 +367,57 @@ def popupmsg(msg):
     popup.mainloop()
 
 def animate(i):
-    dataLink = 'https://btc-e.com/api/3/trades/btc_usd?limit=2000'
-    data = urllib.request.urlopen(dataLink)
-    # data = data.readall().decode('utf-8')
-    data = data.read().decode('utf-8')
-    data = json.loads(data)
-    data = data['btc_usd']
-    data = pd.DataFrame(data)
-    data['datestamp'] = np.array(data.timestamp).astype('datetime64[s]')
+    global refreshRate
+    global DatCounter
 
-    buys = data[(data['type']=='bid')]
-    buyDates = buys.datestamp.tolist()
+    if chartLoad:
+        if paneCount == 1:
+            if DataPace == 'tick':
+                try:
 
-    sells = data[(data['type']=='ask')]
-    sellDates = sells.datestamp.tolist()
+                    ax = plt.subplot2grid((6,4), (0,0),
+                                          rowspan=5, colspan=4)
+                    ax2 = plt.subplot2grid((6,4), (5,0),
+                                           rowspan=1, colspan=4,
+                                           sharex=ax)
 
-    ax.clear()
-    ax.plot_date(buyDates, buys['price'], '#00A3E0', linestyle='-', marker=None, label='Buys')
-    ax.plot_date(sellDates, sells['price'], '#183A54', linestyle='-', marker=None, label='Sells')
 
-    ax.set_title('BTC-e BTCUSD Prices\nLast Price: ' + str(data.price[0]))
-    ax.set_ylabel('Price [$]')
-    ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.102), loc=3, ncol=2, borderaxespad=0)
+                    dataLink = 'https://btc-e.com/api/3/trades/btc_usd?limit=2000'
+                    data = urllib.request.urlopen(dataLink)
+                    # data = data.readall().decode('utf-8')
+                    data = data.read().decode('utf-8')
+                    data = json.loads(data)
+                    data = data['btc_usd']
+                    data = pd.DataFrame(data)
+                    data['datestamp'] = np.array(data.timestamp).astype('datetime64[s]')
+                    allDates = data.datestamp.tolist()
+
+                    buys = data[(data['type']=='bid')]
+                    buyDates = buys.datestamp.tolist()
+
+                    sells = data[(data['type']=='ask')]
+                    sellDates = sells.datestamp.tolist()
+
+                    volume = data['amount']
+
+                    ax.clear()
+                    ax.plot_date(buyDates, buys['price'], '#00A3E0', linestyle='-', marker=None, label='Buys')
+                    ax.plot_date(sellDates, sells['price'], '#183A54', linestyle='-', marker=None, label='Sells')
+
+                    ax2.fill_between(allDates, 0, volume, facecolor='#FF0000')
+                    # ax2.fill_between(allDates, 1e-1, volume, facecolor='#FF0000')
+                    # ax2.set_yscale('log')
+
+                    ax.xaxis.set_major_locator(mticker.MaxNLocator(4))
+                    ax.xaxis.set_major_formatter(ndates.DateFormatter('%Y-%m-%d %H:%M:%S'))
+
+                    ax.set_title('BTC-e BTCUSD Prices\nLast Price: ' + str(data.price[0]))
+                    ax.set_ylabel('Price [$]')
+                    ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.102), loc=3, ncol=2, borderaxespad=0)
+
+                except Exception as e:
+                    print('Failed because of:', e)
+
 
 # SeaofBTCapp extends the tk.Tk class by basically setting up some defaults (adds frames, start with StartPage, etc.)
 class SeaofBTCapp(tk.Tk):
@@ -395,13 +427,14 @@ class SeaofBTCapp(tk.Tk):
     def __init__(self, *args, **kwargs):
 
         tk.Tk.__init__(self, *args, **kwargs)
-        filename = 'resources/myicon.png'
+        # filename = 'resources/myicon.png'
+        filename = 'resources/myicon.ico'
+
+        # img = ImageTk.PhotoImage(Image.open(filename))
         # img = tk.PhotoImage(file=filename)
 
-        img = ImageTk.PhotoImage(Image.open(filename))
+        # self.tk.call('wm', 'iconphoto', self._w, img)
 
-
-        self.tk.call('wm', 'iconphoto', self._w, img)
         self.title("The amazing BTC trading app")
         # self.wm_title('The app')
 
@@ -570,7 +603,7 @@ class StartPage(tk.Frame):
 
         button2 = ttk.Button(self,
                             text='Disagree',
-                            command=quit)
+                            command=parent.quit)
         button2.pack()
 
         status = tk.Label(self,
