@@ -420,6 +420,8 @@ def animate(i):
                         ax.set_ylabel('Price [$]')
                         ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.102), loc=3, ncol=2, borderaxespad=0)
 
+                        priceData = df['price'].astype(float).tolist()
+
                     elif exchange == 'Bitstamp':
 
                         ax = plt.subplot2grid((6,4), (0,0),
@@ -467,6 +469,8 @@ def animate(i):
                         ax.set_ylabel('Price [$]')
                         ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.102), loc=3, ncol=2, borderaxespad=0)
 
+                        priceData = df['price'].astype(float).tolist()
+
                     elif exchange == 'Bitfinex':
 
                         ax = plt.subplot2grid((6,4), (0,0),
@@ -512,6 +516,8 @@ def animate(i):
                         ax.set_ylabel('Price [$]')
                         ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.102), loc=3, ncol=2, borderaxespad=0)
 
+                        priceData = df['price'].astype(float).tolist()
+
                     elif exchange == 'Huobi':
 
                         ax = plt.subplot2grid((6,4), (0,0),
@@ -549,8 +555,105 @@ def animate(i):
                         ax.set_ylabel('Price [$]')
                         ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.102), loc=3, ncol=2, borderaxespad=0)
 
+                        priceData = df['price'].astype(float).tolist()
+
+
                 except Exception as e:
                     print('Failed because of:', e)
+
+            else:
+                if DatCounter > 12:
+                    try:
+                        if exchange == 'Huobi':
+                            if topIndicator != 'none':
+                                ax = plt.subplot2grid((6,4), (1,0), rowspan=5, colspan=4)
+                                ax2 = plt.subplot2grid((6,4), (0,0), sharex=ax, rowspan=1, colspan=4)
+                            else:
+                                ax = plt.subplot2grid((6,4), (0,0), rowspan=6, colspan=4)
+
+                        else:
+
+                            if topIndicator != 'none' and bottomIndicator != 'none':
+                                # Main Graph
+                                ax = plt.subplot2grid((6,4), (1,0), rowspan=3, colspan=4)
+
+                                # Volume Graph
+                                ax2 = plt.subplot2grid((6,4), (4,0), sharex=ax, rowspan=1, colspan=4)
+
+                                # Bottom Indicator
+                                ax3 = plt.subplot2grid((6,4), (5,0), sharex=ax, rowspan=1, colspan=4)
+
+                                # Top Indicator
+                                ax0 = plt.subplot2grid((6,4), (0,0), sharex=ax, rowspan=1, colspan=4)
+
+                            elif topIndicator != 'none':
+
+                                # Main Graph
+                                ax = plt.subplot2grid((6,4), (1,0), rowspan=4, colspan=4)
+
+                                # Volume Graph
+                                ax2 = plt.subplot2grid((6,4), (5,0), sharex=ax, rowspan=1, colspan=4)
+
+                                # Top Indicator
+                                ax0 = plt.subplot2grid((6,4), (0,0), sharex=ax, rowspan=1, colspan=4)
+
+                            elif bottomIndicator != 'none':
+
+                                # Main Graph
+                                ax = plt.subplot2grid((6,4), (0,0), rowspan=4, colspan=4)
+
+                                # Volume Graph
+                                ax2 = plt.subplot2grid((6,4), (4,0), sharex=ax, rowspan=1, colspan=4)
+
+                                # Bottom Indicator
+                                ax0 = plt.subplot2grid((6,4), (5,0), sharex=ax, rowspan=1, colspan=4)
+
+                            else:
+
+                                # Main Graph
+                                ax = plt.subplot2grid((6,4), (0,0), rowspan=4, colspan=4)
+
+                                # Volume Graph
+                                ax2 = plt.subplot2grid((6,4), (5,0), sharex=ax, rowspan=1, colspan=4)
+
+                        dataLink = 'http://seaofbtc.com/api/basic/price?key=1&tf='+DataPace+'&exchange='+programName
+                        data = urllib.request.urlopen(dataLink)
+                        data = data.read().decode()
+                        data = json.loads(data)
+
+                        dateStamp = np.array(data[0].astype('datetime64[s]')).tolist()
+
+                        df = pd.DataFrame({'datestamp':dateStamp,
+                                           'price': data[1],
+                                           'volume': data[2],
+                                           'symbol': 'BTCUSD'})
+                        df['MPLDate'] = df.datestamp.apply(lambda date:mdates.date2num(date.to_pydatetime()))
+                        df = df.set_index('datestamp')
+
+                        OHLC = df.price.resample(resampleSize, how='ohlc')
+                        OHLC = OHLC.dropna()
+
+                        volumeData = df.volume.resample(resampleSize, how={'volume':'sum'})
+
+                        OHLC['dateCopy'] = OHLC.index
+                        OHLC['MPLDates'] = OHLC['dateCopy'].apply(lambda date: mdates.date2num(date.to_pydatetime()))
+
+                        del OHLC['dateCopy']
+
+                        volumeData['dateCopy'] = volumeData.index
+                        volumeData['MPLDates'] = volumeData['dateCopy'].apply(lambda date: mdates.date2num(date.to_pydatetime()))
+
+                        del volumeData['dateCopy']
+
+                        priceData = OHLC['close'].apply(float).tolist()
+
+
+
+
+
+                    except Exception as e:
+                        print('Failed in the non-tick animate:', str(e))
+
 
 
 # SeaofBTCapp extends the tk.Tk class by basically setting up some defaults (adds frames, start with StartPage, etc.)
