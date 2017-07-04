@@ -648,6 +648,21 @@ def animate(i):
                         priceData = OHLC['close'].apply(float).tolist()
 
 
+                        ax.clear()
+
+                        if middleIndicator != 'none':
+                            for m in middleIndicator:
+                                ewma = pd.states.moments.ewma
+                                if m[0] == 'sma':
+                                    sma = pd.rolling_mean(OHLC.close, m[1])
+                                    label = str(m[1])+' SMA'
+                                    ax.plot(OHLC['MPLDates'], sma, label=label)
+
+                                if m[0] == 'ema':
+                                    ewma = pd.rolling_mean(OHLC.close, m[1])
+                                    label = str(m[1])+' SMA'
+                                    ax.plot(OHLC['MPLDates'], ema, label=label)
+
 
 
 
@@ -663,7 +678,8 @@ class SeaofBTCapp(tk.Tk):
     # kwargs are essentially a dictionary of parameters
     def __init__(self, *args, **kwargs):
 
-        tk.Tk.__init__(self, *args, **kwargs)
+        # tk.Tk.__init__(self, *args, **kwargs)
+        super(SeaofBTCapp, self).__init__(*args, **kwargs)
         # filename = 'resources/myicon.png'
         # filename = 'resources/myicon.ico'
         if os.name == 'nt':
