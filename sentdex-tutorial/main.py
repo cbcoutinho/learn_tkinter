@@ -683,7 +683,8 @@ class SeaofBTCapp(tk.Tk):
         # filename = 'resources/myicon.png'
         # filename = 'resources/myicon.ico'
         if os.name == 'nt':
-            filename = 'myicon.ico'
+            #filename = 'myicon.ico'
+            filename = 'myicon.png'
             filename = os.path.abspath(os.path.join('resources', filename))
         else:
             filename = 'myicon.png'
